@@ -1,21 +1,62 @@
 const express = require('express');
 const morgan = require('morgan');
+const mongoose = require('mongoose');
+const Blog = require('./models/blog');
 
 
 // express app
 const app = express();
 
+//connect to MongoDB
+const dbURI = 'mongodb+srv://aliSha:toptop6565OP@atlascluster.a6c0vq8.mongodb.net/';
+mongoose.connect(dbURI)
+  .then((res) => app.listen(3000))
+  .catch((err) => console.log(err))
+
 // register view engine
 app.set('view engine', 'ejs');
-
-
-app.listen(3000);
 
 // middleware & static file
 app.use(express.static('public'))
 
 // logging
 app.use(morgan('dev'))
+
+app.get('/add-blog', (req, res) => {
+    const blog = new Blog({
+        title: 'new blog',
+        snippet: 'about blog',
+        body: 'more about blog'
+    })
+
+    blog.save()
+      .then((result) => {
+        res.send(result)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+})
+
+app.get('/all-blogs', (req, res) => {
+    Blog.find()
+      .then((result) => {
+        res.send(result)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+})
+
+app.get('/single-blog', (req, res) => {
+    Blog.findById('6511d7dbbdc0ab19f45e5054')
+      .then((result) => {
+        res.send(result)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+})
 
 app.use((req, res, next) => {
     console.log('new request made:')
